@@ -53,7 +53,7 @@ UNTIL ALTITUDE > 300 {
 UNTIL ALTITUDE > 500 {
   PRINT " Phase One         " AT (2,4).
   prn(5).
-  SAS OFF.
+  //SAS OFF.
   LOCK tv TO 2100.
   }.
 
