@@ -13,10 +13,11 @@ SET th TO 1. //Установка газа на 100%
 SET st TO HEADING (90 + inc ,88). //Устанавливаем стартовый угол
 LOCK THROTTLE TO th. //Закрепляем значение газа за переменной
 LOCK STEERING TO st.
+
 // Выводим инф.табло
 PRINT "********************************************************" AT (0,0).
 PRINT "**                                                    **" AT (0,1).
-PRINT " Запуск ЛА на орбиту " + (apo/100) + " км с наклонением " + inc + " град. " AT (2,1).
+PRINT " Launch to orbit " + (apo/100) + " km and inc. " + inc + " degree " AT (2,1).
 PRINT "********************************************************" AT (0,2).
 PRINT "**                                                    **" AT (0,3).
 PRINT "**                                                    **" AT (0,4).
@@ -31,25 +32,27 @@ PRINT "********************************************************" AT (0,12).
 
 // Начинаем предстартовый отсчет
 UNTIL Countdown > 0 {
-  PRINT " Отсчет :" + Countdown + "..." AT (2,4).
+  PRINT " Countdown: " + Countdown + "..." AT (2,4).
   WAIT .5.
   SET Countdown TO Countdown - 1.
   }.
 
 staging().
-PRINT " ПУСК!!! " AT (2,4).
+PRINT " Launch!!! " AT (2,4).
 
 UNTIL ALTITUDE > 300 {
   IF VERTICALSPEED > 5 and f = 0 {
-    PRINT "Есть отрыв!" AT (2,4).
+    PRINT " Liftoff..." AT (2,4).
+    PRINT " Vertical speed: " + VERTICALSPEED " m/s" AT (2,5).
     SET f TO 1. //Переход в фазу 2
     }.
   }.
 
 UNTIL ALTITUDE > 500 {
-  PRINT " Высота 500 м" AT (2,4).
+  PRINT " Altitude 500 m" AT (2,4).
+  PRINT " Vertical speed: " + VERTICALSPEED " m/s" AT (2,5).
   SAS OFF.
-  LOCK tv TO 2000.
+  LOCK tv TO 2100.
   }.
 
 

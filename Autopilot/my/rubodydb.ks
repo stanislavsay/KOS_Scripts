@@ -5,8 +5,8 @@
 DECLARE PARAMETER forBody.
 
 PRINT "************************************************" AT (0,0).
-PRINT "** Установлено соединение с базой данных KSDB **" AT (0,1).
-PRINT "** Выполняется запрос...                      **" AT (0,2).
+PRINT "**    Connecting to KSC BodyDB...             **" AT (0,1).
+PRINT "**      Query request...                      **" AT (0,2).
 PRINT "************************************************" AT (0,3).
 
 // Constants for important things that DON'T change per body:
@@ -98,7 +98,7 @@ PRINT "**                                            **" AT (0,4).
 PRINT "************************************************" AT (0,5).
 PRINT "**                                            **" AT (0,6).
 PRINT "************************************************" AT (0,7).
-PRINT " Ответ KSDB для: " + forBody + " " AT (5,6).
+PRINT " Answer from KSC BodyDB: " + forBody + " " AT (5,6).
 PRINT " " AT (0,8).
 PRINT "bodySurfaceGrav  = " + bodySurfaceGrav AT (0,9).
 PRINT "bodyRadius       = " + bodyRadius AT (0,10).
