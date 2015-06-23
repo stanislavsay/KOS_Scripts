@@ -22,12 +22,14 @@ DECLARE FUNCTION staging {
         SET th TO tempThr.
         WAIT .2.
         STAGE.
+        WAIT .2.
         SET th TO curThr.
         } ELSE IF engIgnition = engFlameOut {
             SET th TO tempThr.
             STAGE.
             WAIT .2.
             STAGE.
+            STAGE .2.
             SET th TO curThr.
             }.
 }.
