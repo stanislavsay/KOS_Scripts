@@ -1,5 +1,6 @@
 CLEARSCREEN.
-
+SET TERMINAL:WIDTH TO 57.
+SET TERMINAL:HEIGHT TO 14.
 
 SET apo TO 75000. //Высота плановой орбиты
 SET inc TO 0. //Наклонение плановой орбиты
@@ -30,7 +31,7 @@ PRINT "**                                                    **" AT (0,10).
 PRINT "**                                                    **" AT (0,11).
 PRINT "********************************************************" AT (0,12).
 
-// Начинаем предстартовый отсчет
+// Начинаем предстартовый отсчет. Фаза 0
 UNTIL Countdown > 0 {
   PRINT " Countdown: " + Countdown + "..." AT (2,4).
   WAIT .5.
@@ -43,17 +44,45 @@ PRINT " Launch!!! " AT (2,4).
 UNTIL ALTITUDE > 300 {
   IF VERTICALSPEED > 5 and f = 0 {
     PRINT " Liftoff..." AT (2,4).
-    PRINT " Vertical speed: " + VERTICALSPEED " m/s" AT (2,5).
-    SET f TO 1. //Переход в фазу 2
+    PRINT " Vertical speed: " + ROUND(VERTICALSPEED) + " m/s           " AT (2,5).
+    SET f TO 1. //Переход в фазу 1
     }.
   }.
 
 UNTIL ALTITUDE > 500 {
-  PRINT " Altitude 500 m" AT (2,4).
-  PRINT " Vertical speed: " + VERTICALSPEED " m/s" AT (2,5).
+  PRINT " Altitude:" + ROUND(ALTITUDE) + " m            " AT (2,4).
+  PRINT " Vertical speed: " + ROUND(VERTICALSPEED) + " m/s             " AT (2,5).
+  PRINT " Throttle: " + ROUND(th)*100 + " %             " AT (2,6).
+  PRINT " Apoapsis: " + ROUND(APOAPSIS)/1000 + " km             " AT (2,7).
   SAS OFF.
   LOCK tv TO 2100.
   }.
+
+//SET f TO 0.
+UNTIL APOAPSIS > 9000 {
+  SET int TO int + err.
+  SET err TO tv - AIRSPEED.
+  IF int > 30 {
+    SET int TO 30.
+    }.
+  IF int < -5 {
+    SET int TO -5.
+    }.
+  SET th TO 0.2 * err + 0.02 * int.
+  IF th < 1 AND f = 1 {
+    PRINT " Start Throttle correction...           " AT (2,4).
+    SET f to 2. //Переход к фазе 2
+    }.
+
+  //IF th < 1 AND f = 0 {
+    //PRINT "max Q".
+    //SET f TO 1.
+    //}.
+}.
+
+
+
+  PRINT "Finish" AT (0,14).
 
 
 
