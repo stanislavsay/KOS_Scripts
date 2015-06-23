@@ -44,16 +44,14 @@ PRINT " Launch!!! " AT (2,4).
 UNTIL ALTITUDE > 300 {
   IF VERTICALSPEED > 5 and f = 0 {
     PRINT " Liftoff..." AT (2,4).
-    PRINT " Vertical speed: " + ROUND(VERTICALSPEED) + " m/s           " AT (2,5).
+    prn(5).
     SET f TO 1. //Переход в фазу 1
     }.
   }.
 
 UNTIL ALTITUDE > 500 {
-  PRINT " Altitude:" + ROUND(ALTITUDE) + " m            " AT (2,4).
-  PRINT " Vertical speed: " + ROUND(VERTICALSPEED) + " m/s             " AT (2,5).
-  PRINT " Throttle: " + ROUND(th)*100 + " %             " AT (2,6).
-  PRINT " Apoapsis: " + ROUND(APOAPSIS)/1000 + " km             " AT (2,7).
+  PRINT " Phase One         " AT (2,4).
+  prn(5).
   SAS OFF.
   LOCK tv TO 2100.
   }.
@@ -73,13 +71,44 @@ UNTIL APOAPSIS > 9000 {
     PRINT " Start Throttle correction...           " AT (2,4).
     SET f to 2. //Переход к фазе 2
     }.
-
+  prn{5}.
   //IF th < 1 AND f = 0 {
     //PRINT "max Q".
     //SET f TO 1.
     //}.
 }.
 
+SET s TO 50.
+SET st TO heading(inc + 90, (40+s)).
+PRINT "Phase Two. Pitch programm                    " AT (2,4).
+prn(5).
+//set f to 0.
+UNTIL APOAPSIS > 50000 {
+  IF ALTITUDE > 40000 AND f = 0 {
+    SET f TO 3.
+  }.
+
+  SET s TO ((50000 - APOAPSIS) / 2000).
+  IF s > 50 {
+    SET s TO 50.
+    }.
+  SET st TO HEADING(inc + 90, (40+s)).
+  SET int TO int + err.
+  SET err TO tv - AIRSPEED.
+  IF int > 30 {
+    SET int TO 30.
+    }.
+  IF int < -10 {
+    SET int TO -10.
+    }.
+  SET th TO 0.2 * err + 0.02 * int.
+
+  IF th < 1 AND f = 3 {
+      PRINT " Phase Three. Pitch to be continue...        " AT (2,4). //Переход к фазе 4
+      SET f TO 4.
+    }.
+    prn(5).
+  }.
 
 
   PRINT "Finish" AT (0,14).
@@ -125,3 +154,12 @@ DECLARE FUNCTION staging {
             SET th TO curThr.
             }.
 }.
+
+// Функция вывода данных о полете
+DECLARE FUNCTION prn {
+  PARAMETER line.
+  PRINT " Altitude:" + ROUND(ALTITUDE) + " m            " AT (2,line).
+  PRINT " Vertical speed: " + ROUND(VERTICALSPEED) + " m/s             " AT (2,line+1).
+  PRINT " Throttle: " + ROUND(th)*100 + " %             " AT (2,line+2).
+  PRINT " Apoapsis: " + ROUND(APOAPSIS)/1000 + " km             " AT (2,line+3).
+  }.
