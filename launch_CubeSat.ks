@@ -49,6 +49,7 @@ UNTIL ALTITUDE > 300 {
     }.
   }.
 
+
 UNTIL ALTITUDE > 500 {
   PRINT " Phase One         " AT (2,4).
   prn(5).
@@ -56,7 +57,7 @@ UNTIL ALTITUDE > 500 {
   LOCK tv TO 2100.
   }.
 
-//SET f TO 0.
+SET f TO 0.
 UNTIL APOAPSIS > 9000 {
   SET int TO int + err.
   SET err TO tv - AIRSPEED.
@@ -67,9 +68,9 @@ UNTIL APOAPSIS > 9000 {
     SET int TO -5.
     }.
   SET th TO 0.2 * err + 0.02 * int.
-  IF th < 1 AND f = 1 {
+  IF th < 1 AND f = 0 {
     PRINT " Start Throttle correction...           " AT (2,4).
-    SET f to 2. //Переход к фазе 2
+    SET f to 1. //Переход к фазе 2
     }.
   prn(5).
   //IF th < 1 AND f = 0 {
@@ -80,12 +81,13 @@ UNTIL APOAPSIS > 9000 {
 
 SET s TO 50.
 SET st TO heading(inc + 90, (40+s)).
-PRINT "Phase Two. Pitch programm                    " AT (2,4).
+PRINT " Phase Two. Pitch programm                    " AT (2,4).
 prn(5).
-//set f to 0.
-UNTIL APOAPSIS > 50000 {
+
+SET f to 0.
+UNTIL APOAPSIS > 45000 {
   IF ALTITUDE > 40000 AND f = 0 {
-    SET f TO 3.
+    SET f TO 1.
   }.
 
   SET s TO ((50000 - APOAPSIS) / 2000).
@@ -103,9 +105,9 @@ UNTIL APOAPSIS > 50000 {
     }.
   SET th TO 0.2 * err + 0.02 * int.
 
-  IF th < 1 AND f = 3 {
+  IF th < 1 AND f = 0 {
       PRINT " Phase Three. Pitch to be continue...        " AT (2,4). //Переход к фазе 4
-      SET f TO 4.
+      SET f TO 1.
     }.
     prn(5).
   }.
@@ -116,13 +118,16 @@ SET th TO 1.
 prn(5).
 
 UNTIL APOAPSIS > apo {
-  IF ALTITUDE > 43800 and f = 4 {
-    SET f TO 5.
+  IF ALTITUDE > 43800 and f = 0 {
+    SET f TO 1.
     SET th TO 0.
     staging().
     WAIT .2.
     }.
-    prn(5).
+  UNTIL f = 1 {
+    staging().
+    }.
+  prn(5).
   }.
 
 SET th TO 0.
