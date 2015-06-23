@@ -18,7 +18,7 @@ LOCK STEERING TO st.
 // Выводим инф.табло
 PRINT "********************************************************" AT (0,0).
 PRINT "**                                                    **" AT (0,1).
-PRINT " Launch to orbit " + (apo/100) + " km and inc. " + inc + " degree " AT (2,1).
+PRINT " Launch to orbit " + (apo/1000) + " km and inc. " + inc + " degree " AT (2,1).
 PRINT "********************************************************" AT (0,2).
 PRINT "**                                                    **" AT (0,3).
 PRINT "**                                                    **" AT (0,4).
@@ -71,7 +71,7 @@ UNTIL APOAPSIS > 9000 {
     PRINT " Start Throttle correction...           " AT (2,4).
     SET f to 2. //Переход к фазе 2
     }.
-  prn{5}.
+  prn(5).
   //IF th < 1 AND f = 0 {
     //PRINT "max Q".
     //SET f TO 1.
@@ -110,8 +110,84 @@ UNTIL APOAPSIS > 50000 {
     prn(5).
   }.
 
+LOCK st TO PROGRADE.
+PRINT " Steering Prograde... Throttle to 100%...          " AT (2,4).
+SET th TO 1.
+prn(5).
 
-  PRINT "Finish" AT (0,14).
+UNTIL APOAPSIS > apo {
+  IF ALTITUDE > 43800 and f = 4 {
+    SET f TO 5.
+    SET th TO 0.
+    staging().
+    WAIT .2.
+    }.
+    prn(5).
+  }.
+
+SET th TO 0.
+PRINT " Wait to Ap." AT (2,4).
+SET WARP TO 3.
+SET s TO 2200.
+SET dv TO s - VELOCITY:ORBIT:MAG.
+SET t to (MASS * dv) / (MAXTHRUST).
+PRINT " Timeout: " + (ETA:APOAPSIS - (t/2)) + "s" AT (15,4). 
+
+UNTIL ( ETA:APOAPSIS < ( t / 2)) {
+  SET dv TO s - VELOCITY:ORBIT:MAG.
+  SET t TO (MASS * dv) / (MAXTHRUST).
+  }.
+
+SET ecco TO APOAPSIS - PERIAPSIS.
+SET WARP TO 0.
+SET th TO 1.
+WAIT .1.
+
+SET ecc TO APOAPSIS - PERIAPSIS.
+SET err TO 0.
+SET int TO 0.
+SET tht TO 1.
+SET th TO tht.
+SET f1 TO 0.
+SET f2 TO 0.
+
+UNTIL ((ecc - 50) > ecco) {
+  SET ecco TO ecc.
+  SET dv TO s - VELOCITY:ORBIT:MAG.
+  SET t TO (MASS * dv) / (MAXTHRUST).
+  SET err TO t - ETA:APOAPSIS + 1.
+  SET int TO int + err.
+  IF int > 15 {
+    SET int TO 15.
+    }.
+  IF int < -5 {
+    SET int TO -5.
+    }.
+  SET tht TO 0.3 * err + 0.03 * int.
+  IF t < 1 {
+    SET tht TO .5.
+    IF f1 = 0 {
+      SET f1 TO 1.
+      PRINT "Less than 1s, Finalizing Burn                    " AT (2,4).
+      }.
+    }.
+  IF VERTICALSPEED < 0 {
+    SET tht TO 1.
+    IF f2 = 0 {
+      SET f2 TO 1.
+      PRINT "Falling! Throttle to 100%!                      " AT (2,4).
+      }.
+    }.
+  SET th TO tht.
+  staging().
+  SET ecc TO APOAPSIS - PERIAPSIS.
+  }.
+
+LOCK THROTTLE TO 0.
+SET ecc TO APOAPSIS-PERIAPSIS.
+PRINT "Final Eccentricity: " + ecc +". Done!" AT (2,10).
+
+SET SHIP:CONTROL:PILOTMAINTHROTTLE TO 0.
 
 
 
@@ -160,6 +236,6 @@ DECLARE FUNCTION prn {
   PARAMETER line.
   PRINT " Altitude:" + ROUND(ALTITUDE) + " m            " AT (2,line).
   PRINT " Vertical speed: " + ROUND(VERTICALSPEED) + " m/s             " AT (2,line+1).
-  PRINT " Throttle: " + ROUND(th)*100 + " %             " AT (2,line+2).
+  PRINT " Throttle: " + ROUND(th) + " %             " AT (2,line+2).
   PRINT " Apoapsis: " + ROUND(APOAPSIS)/1000 + " km             " AT (2,line+3).
   }.
