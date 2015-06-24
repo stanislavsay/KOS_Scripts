@@ -45,7 +45,7 @@ UNTIL ALTITUDE > 300 {
   IF VERTICALSPEED > 5 and f = 0 {
     PRINT " Liftoff..." AT (2,4).
     prn(5).
-    SET f TO 1. //Переход в фазу 1
+    SET f TO 1. //Переход в фазу 1 при отрыве от стола
     }.
   }.
 
@@ -57,7 +57,8 @@ UNTIL ALTITUDE > 500 {
   LOCK tv TO 2100.
   }.
 
-SET f TO 0.
+//SET f TO 0.
+// Фаза 1. f=1. Ждем пока Ap не достигнет 9 км
 UNTIL APOAPSIS > 9000 {
   SET int TO int + err.
   SET err TO tv - AIRSPEED.
@@ -68,9 +69,9 @@ UNTIL APOAPSIS > 9000 {
     SET int TO -5.
     }.
   SET th TO 0.2 * err + 0.02 * int.
-  IF th < 1 AND f = 0 {
+  IF th < 1 AND f = 1 {
     PRINT " Start Throttle correction...           " AT (2,4).
-    SET f to 1. //Переход к фазе 2
+    SET f to 2. //Начало фазы 2 - корректируем ускорение пока не достигнем 9 км.
     }.
   prn(5).
   //IF th < 1 AND f = 0 {
@@ -84,13 +85,14 @@ SET st TO heading(inc + 90, (40+s)).
 PRINT " Phase Two. Pitch programm                    " AT (2,4).
 prn(5).
 
-SET f to 0.
+//SET f to 0.
+//Фаза 2. f=2. Ждем пока Ap  не достигнет 45 км
 UNTIL APOAPSIS > 45000 {
-  IF ALTITUDE > 40000 AND f = 0 {
-    SET f TO 1.
+  IF ALTITUDE > 40000 AND f = 2 {
+    SET f TO 3. //Переходим к фазе 3
   }.
 
-  SET s TO ((50000 - APOAPSIS) / 2000).
+  SET s TO ((50000 - APOAPSIS) / 2100).
   IF s > 50 {
     SET s TO 50.
     }.
@@ -105,9 +107,9 @@ UNTIL APOAPSIS > 45000 {
     }.
   SET th TO 0.2 * err + 0.02 * int.
 
-  IF th < 1 AND f = 0 {
-      PRINT " Phase Three. Pitch to be continue...        " AT (2,4). //Переход к фазе 4
-      SET f TO 1.
+  IF th < 1 AND f = 2 {
+      PRINT " Phase Three. Pitch to be continue...        " AT (2,4).
+      SET f TO 3. //Переходим к фазе 3
     }.
     prn(5).
   }.
@@ -116,15 +118,15 @@ LOCK st TO PROGRADE.
 PRINT " Steering Prograde... Throttle to 100%...          " AT (2,4).
 SET th TO 1.
 prn(5).
-
+// Фаза 3. Ждем пока Ap не достигнет расчетной высоты
 UNTIL APOAPSIS > apo {
-  IF ALTITUDE > 43800 and f = 0 {
-    SET f TO 1.
+  IF ALTITUDE > 43800 and f = 3 {
+    SET f TO 4. //Переходим к Фазе 4
     SET th TO 0.
     staging().
     WAIT .2.
     }.
-  UNTIL f = 1 {
+  UNTIL f = 4 {
     staging().
     }.
   prn(5).
